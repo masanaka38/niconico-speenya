@@ -1,8 +1,16 @@
 const path = require('path')
 const express = require('express')
 const app = express()
-const http = require('http').createServer(app)
-const io = require('socket.io')(http)
+
+var fs = require('fs');
+var env = require('./env.json');
+var options = {
+  key: fs.readFileSync(env.certs.key_path),
+  cert: fs.readFileSync(env.certs.cert_path)
+};
+var https = require('https').createServer(options, app);
+var io = require('socket.io')(https);
+
 const extend = require('util')._extend
 
 require('console-stamp')(console, '[HH:MM:ss.l]')
@@ -46,4 +54,4 @@ io.on('connection', function (socket) {
   })
 })
 
-http.listen(process.env.PORT || 2525)
+https.listen(process.env.PORT || 2525)
