@@ -4,12 +4,19 @@ const app = express()
 
 var fs = require('fs');
 var env = require('./env.json');
-var options = {
-  key: fs.readFileSync(env.certs.key_path),
-  cert: fs.readFileSync(env.certs.cert_path)
-};
-var https = require('https').createServer(options, app);
-var io = require('socket.io')(https);
+var http;
+
+if(env.ssl === false) {
+  http = require('http').createServer(app);
+} else {  
+  var options = {
+    key: fs.readFileSync(env.certs.key_path),
+    cert: fs.readFileSync(env.certs.cert_path)
+  };
+  http = require('https').createServer(options, app);
+}
+
+var io = require('socket.io')(http);
 
 const extend = require('util')._extend
 
@@ -27,6 +34,13 @@ app.get('/comment/:comment', refererCheck, function (req, res) {
   const msg = extend({ body: req.param('comment') }, req.query)
   console.log('comment: ' + JSON.stringify(msg))
   io.emit('comment', msg)
+  res.end()
+})
+
+app.get('/heart_beat', refererCheck, function (req, res) {
+  const msg = extend({}, req.query)
+  console.log('heart_beat: ' + JSON.stringify(msg))
+  io.emit('heart_beat', msg)
   res.end()
 })
 
@@ -54,4 +68,4 @@ io.on('connection', function (socket) {
   })
 })
 
-https.listen(process.env.PORT || 2525)
+http.listen(process.env.PORT || 2525)

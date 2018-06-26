@@ -147,7 +147,33 @@
         <i class="fa fa-bolt"></i> Show Send Image Textbox
       </button>
     </div>
+
+    <form class="form-horizontal" style="margin: 16px" role="form" action="/heart_beat" method="get" onsubmit="handleSubmit(this); this.hb.value = ''; return false;">
+
+      <div class="form-group">
+        <label class="control-label col-sm-2">Name</label>
+        <div class="input-group">
+          <input type="text" name="name1" maxlength="60" class="form-control" placeholder="Please input your name1">
+          <input type="text" name="name2" maxlength="60" class="form-control" placeholder="Please input your name1">
+          <input type="text" name="name3" maxlength="60" class="form-control" placeholder="Please input your name1">
+          <input type="text" name="name4" maxlength="60" class="form-control" placeholder="Please input your name1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="control-label col-sm-2">Hert Beats</label>
+        <div class="input-group">
+          <input type="text" name="hb" maxlength="60" class="form-control" placeholder="">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit"><i class="fa fa-comment"></i></button>
+          </span>
+        </div>
+      </div>
+
+    </form>
   </div>
+
+
   <div class="footer">
     <div class="container text-right">
       niconico-speenya © 2015-2017 @chimerast

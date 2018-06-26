@@ -1,7 +1,8 @@
 /* global chrome, io */
 (function () {
   // change to your server url
-  const SERVER_URL = 'http://localhost:2525'
+  const SERVER_URL = 'https://niconico.bikatsubu.jp:2525'
+  //const SERVER_URL = 'http://localhost:2525'
   const APP_ID = chrome.runtime.id
   const APP_VERSION = chrome.runtime.getManifest().version
 
@@ -12,6 +13,7 @@
 
     socket = io.connect(SERVER_URL, { 'forceNew': true })
     socket.on('comment', handleComment)
+    socket.on('heart_beat', handleHeartBeat);
     socket.on('like', handleLike)
 
     console.log(`niconico speenya v${APP_VERSION}: connect to ${SERVER_URL}`)
@@ -77,6 +79,32 @@
     t.animate(effect, timing).onfinish = function () {
       document.body.removeChild(t)
     }
+  }
+
+  function handleHeartBeat(msg) {
+    console.log(msg);
+    const number = msg.hb.split(',');
+    
+    hb(1).innerText = msg.name1 + " :" + number[0];
+    if(number[1]) hb(2).innerText = msg.name2 + " :" + number[1];
+    if(number[2]) hb(3).innerText = msg.name3 + " :" + number[2];
+    if(number[3]) hb(4).innerText = msg.name4 + " :" + number[3];
+  }
+  function hb(number) {
+    const shadow = '#ffffff'
+    var t = document.getElementById('_bb_' + number);
+    if (t===null) {
+      t = document.createElement('div'); 
+      t.id = '_bb_' + number;
+      t.style.position = 'fixed'
+      t.style.textShadow = `-2px -2px 0px ${shadow}, -2px 2px 0px ${shadow}, 2px -2px 0px ${shadow}, 2px 2px 0px ${shadow}`
+      t.style.left = '16px'
+      t.style.top = ((number-1) * 80 + 8)+ 'px'
+      t.style.fontSize = '40pt'
+      t.style.zIndex = 2147483647
+      document.body.appendChild(t);
+    }
+    return t;
   }
 
   function handleLike (msg) {
