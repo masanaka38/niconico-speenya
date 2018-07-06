@@ -1,13 +1,15 @@
 /* global chrome */
 (function () {
   let enabled = false
+  let idx = 0;
 
   // get stored settings
-  chrome.storage.sync.get({ enabled: true }, function (items) {
+  chrome.storage.sync.get({ idx: 0, enabled: true }, function (items) {
     if (chrome.runtime.lastError) {
       console.log(chrome.runtime.lastError)
     }
-    enabled = items.enabled
+    idx = items.idx
+    enabled = (idx > 0)
     update()
   })
 
@@ -27,12 +29,12 @@
     if (enabled) {
       const details = {
         path: {
-          '19': 'icons/icon19.png',
-          '38': 'icons/icon38.png'
+          '19': 'icons/icon_'+idx+'.png',
+          '38': 'icons/icon_'+idx+'.png'
         }
       }
 
-      chrome.storage.sync.set({ enabled: true })
+      chrome.storage.sync.set({ idx: idx, enabled: true })
       chrome.browserAction.setIcon(details)
       executeScriptInAllTabs('if (typeof speenya !== "undefined") speenya.connect();')
     } else {
@@ -43,20 +45,22 @@
         }
       }
 
-      chrome.storage.sync.set({ enabled: false })
+      chrome.storage.sync.set({ idx: idx, enabled: false })
       chrome.browserAction.setIcon(details)
       executeScriptInAllTabs('if (typeof speenya !== "undefined") speenya.disconnect();')
     }
   }
 
   chrome.browserAction.onClicked.addListener(function (tab) {
-    enabled = !enabled
+//    enabled = !enabled
+    idx = (idx+1)  % 5
+    enabled = (idx>0)
+    chrome.tabs.sendMessage(tab.id, { 'action': 'chnage_idx', 'idx': idx });
     update()
   })
 
   chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.message === 'checkEnabled') {
-      sendResponse({ enabled: enabled })
+    if (request.message === 'checkEnabled') { sendResponse({ idx: idx, enabled: enabled })
       return true
     }
   })

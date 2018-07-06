@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "NicoNico SPEENYA",
-  "version": "0.0.3",
+  "name": "NicoNico Bbo",
+  "version": "0.0.4",
   "description": "The niconico method for Google Chrome",
 
   "icons": {
@@ -15,7 +15,7 @@
       "19":"icons/icon19.png",
       "38":"icons/icon38.png"
     },
-    "default_title": "NicoNico SPEENYA"
+    "default_title": "NicoNico Bbo"
   },
 
   "background": {

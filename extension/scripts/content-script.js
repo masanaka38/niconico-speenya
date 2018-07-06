@@ -1,10 +1,12 @@
 /* global chrome, io */
 (function () {
   // change to your server url
-  const SERVER_URL = 'https://niconico.bikatsubu.jp:2525'
-  //const SERVER_URL = 'http://localhost:2525'
+  //const SERVER_URL = 'https://niconico.bikatsubu.jp:2525'
+  const SERVER_URL = 'http://localhost:2525'
   const APP_ID = chrome.runtime.id
   const APP_VERSION = chrome.runtime.getManifest().version
+  let idx = 0;
+  let heartBeat = [{}];
 
   let socket = null
 
@@ -15,6 +17,25 @@
     socket.on('comment', handleComment)
     socket.on('heart_beat', handleHeartBeat);
     socket.on('like', handleLike)
+
+    chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
+      //console.log(request);
+      idx = request.idx; 
+    });
+
+    var img = document.getElementById('_bb_meter')
+    if(img === null) {
+      var w = window.innerHeight / 800 *84 
+      img = document.createElement('img');
+      img.id = '_bb_meter';
+      img.style.position = 'fixed'
+      img.src = `chrome-extension://${APP_ID}/images/meter.png`;
+      img.style.top  = '8px'
+      img.style.left = (window.innerWidth - w) + 'px'
+      img.style.height = (window.innerHeight - 16) + 'px'
+      img.style.zIndex = 2147483640
+      document.body.appendChild(img);
+    }
 
     console.log(`niconico speenya v${APP_VERSION}: connect to ${SERVER_URL}`)
   }
@@ -37,7 +58,7 @@
       chrome.runtime.sendMessage({
         message: 'checkEnabled'
       }, function (response) {
-        resolve(response.enabled)
+        resolve(response)
       })
     })
   }
@@ -83,28 +104,73 @@
 
   function handleHeartBeat(msg) {
     console.log(msg);
-    const number = msg.hb.split(',');
     
-    hb(1).innerText = msg.name1 + " :" + number[0];
-    if(number[1]) hb(2).innerText = msg.name2 + " :" + number[1];
-    if(number[2]) hb(3).innerText = msg.name3 + " :" + number[2];
-    if(number[3]) hb(4).innerText = msg.name4 + " :" + number[3];
+    if(msg.idx>0 ) {
+      heartBeat[msg.idx-1] = {
+        idx: msg.idx,
+        name: msg.name,
+        hb: msg.hb
+      }
+//      console.log(sortRanking(heartBeat));
+    }
+
+    rk = sortRanking(heartBeat)
+    for(i=0; i<rk.length; i++) {
+      const a = rk[i];
+      hb_number(a.name, a.hb, i);
+    }
+    if(msg.idx == idx) {
+      hb_heart(msg.hb);
+    }
   }
-  function hb(number) {
+
+  function sortRanking(hb) {
+    tmp = hb.concat();
+    tmp.sort(compare);
+    return tmp;
+  }
+  function compare(a,b) {
+    if (parseInt(a.hb) < parseInt(b.hb)) {
+      return 1;
+    } else {
+      return -1;
+    }
+  }
+
+  function hb_number(name, hb, idx) {
     const shadow = '#ffffff'
-    var t = document.getElementById('_bb_' + number);
+    var t = document.getElementById('_bb_'+idx);
     if (t===null) {
       t = document.createElement('div'); 
-      t.id = '_bb_' + number;
+      t.id = '_bb_'+idx;
       t.style.position = 'fixed'
       t.style.textShadow = `-2px -2px 0px ${shadow}, -2px 2px 0px ${shadow}, 2px -2px 0px ${shadow}, 2px 2px 0px ${shadow}`
       t.style.left = '16px'
-      t.style.top = ((number-1) * 80 + 8)+ 'px'
+      t.style.top = (8 + idx * 60) + 'px'
       t.style.fontSize = '40pt'
       t.style.zIndex = 2147483647
       document.body.appendChild(t);
     }
-    return t;
+    t.innerText = (idx+1) + "位 "  + name + ":" + hb
+  }
+
+  function hb_heart(hb) {
+    var img = document.getElementById('_bb_img')
+    if(img === null) {
+      var h = window.innerHeight / 405 * 64;
+      img = document.createElement('img');
+      img.id = '_bb_img';
+      img.style.position = 'fixed'
+      img.src = `chrome-extension://${APP_ID}/images/heart.png`;
+      img.style.left = (window.innerWidth - h) + 'px'
+      img.style.height = h + 'px'
+      img.style.zIndex = 2147483647
+      document.body.appendChild(img);
+    }
+    if(hb < 30) hb = 30
+    if(hb > 200) hb = 200
+    img.style.top = (1-hb/200) * window.innerHeight + 'px'
+    return img;
   }
 
   function handleLike (msg) {
@@ -117,7 +183,7 @@
       t.style.position = 'fixed'
       t.style.left = rand(window.innerWidth) - t.width / 2 + 'px'
       t.style.top = rand(window.innerHeight) - t.height / 2 + 'px'
-      t.style.zIndex = 2147483647
+      t.style.zIndex = 2147483647 
       t.style.opacity = 0.0
 
       document.body.appendChild(t)
@@ -147,8 +213,11 @@
   }
 
   checkEnabled()
-    .then(function (enabled) {
-      if (enabled) {
+    .then(function (val) {
+
+      if (val.enabled) {
+        console.log(val.enabled, val.idx)
+        idx = val.idx
         connect()
       } else {
         disconnect()
@@ -159,4 +228,5 @@
     connect: connect,
     disconnect: disconnect
   }
+
 })()

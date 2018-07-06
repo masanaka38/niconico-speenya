@@ -7,8 +7,10 @@ var env = require('./env.json');
 var http;
 
 if(env.ssl === false) {
+  console.log('use http');
   http = require('http').createServer(app);
 } else {  
+  console.log('use https');
   var options = {
     key: fs.readFileSync(env.certs.key_path),
     cert: fs.readFileSync(env.certs.cert_path)

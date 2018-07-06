@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>NicoNico SPEENYA</title>
+  <title>美活部</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,6 +42,13 @@
     $(function () {
       FastClick.attach(document.body)
     })
+
+    function changeIdx(v) {
+      document.getElementById('idx').innerText=v;
+      document.getElementById('idx-f').value=v;
+      return false;
+    }
+
   </script>
   <style>
     body {
@@ -148,15 +155,28 @@
       </button>
     </div>
 
-    <form class="form-horizontal" style="margin: 16px" role="form" action="/heart_beat" method="get" onsubmit="handleSubmit(this); this.hb.value = ''; return false;">
+    <form class="form-horizontal" style="margin: 16px" role="form" action="/heart_beat" method="get" onsubmit="if (this.hb.value == '') return false; handleSubmit(this); this.hb.value = ''; return false;">
+
+      
+      <div class="form-group">
+        <label class="control-label col-sm-2">Channel</label>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <span id="idx">1</span><input type="hidden" name="idx" id="idx-f" value="1" /> <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="javascript:changeIdx(1)">1</a></li>
+            <li><a href="javascript:changeIdx(2)">2</a></li>
+            <li><a href="javascript:changeIdx(3)">3</a></li>
+            <li><a href="javascript:changeIdx(4)">4</a></li>
+          </ul>
+        </div>
+      </div> 
 
       <div class="form-group">
         <label class="control-label col-sm-2">Name</label>
         <div class="input-group">
-          <input type="text" name="name1" maxlength="60" class="form-control" placeholder="Please input your name1">
-          <input type="text" name="name2" maxlength="60" class="form-control" placeholder="Please input your name1">
-          <input type="text" name="name3" maxlength="60" class="form-control" placeholder="Please input your name1">
-          <input type="text" name="name4" maxlength="60" class="form-control" placeholder="Please input your name1">
+          <input type="text" name="name" maxlength="60" class="form-control" placeholder="Please input your name">
         </div>
       </div>
 
@@ -169,7 +189,6 @@
           </span>
         </div>
       </div>
-
     </form>
   </div>
 
