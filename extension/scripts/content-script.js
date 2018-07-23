@@ -1,8 +1,8 @@
 /* global chrome, io */
 (function () {
   // change to your server url
-  //const SERVER_URL = 'https://niconico.bikatsubu.jp:2525'
-  const SERVER_URL = 'http://localhost:2525'
+  const SERVER_URL = 'https://niconico.bikatsubu.jp:2525'
+  //const SERVER_URL = 'http://localhost:2525'
   const APP_ID = chrome.runtime.id
   const APP_VERSION = chrome.runtime.getManifest().version
   let idx = 0;
